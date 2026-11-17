@@ -10,7 +10,6 @@
 #include "print.h"
 
 static volatile sig_atomic_t g_stop;
-long load_onetime = 0;
 
 static void On_Signal(int sig)
 {
@@ -90,10 +89,10 @@ int Serial_Config(int fd)
 
 void Serial_Pollnread(int fd)
 {
+    long total = 0;
     unsigned char buf[512];
     while(g_stop == 0)
     {
-        load_onetime = 0;
         // Poll 配置
         struct pollfd pfd=
         {
@@ -131,8 +130,6 @@ void Serial_Pollnread(int fd)
         {
             continue;
         }
-        load_onetime += n;
-        char print_buf[512];
-        printf("%s",Stack_Print(buf,print_buf));
+        total += n;
     }
 }
