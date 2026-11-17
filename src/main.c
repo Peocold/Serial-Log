@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include "load.h"
+#include "print.h"
 
 int main(void)
 {

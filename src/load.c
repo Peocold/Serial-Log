@@ -7,7 +7,6 @@
 #include <sys/ioctl.h>
 #include <poll.h>
 #include <signal.h>
-#include "load.h"
 
 static volatile sig_atomic_t g_stop;
 
