@@ -7,8 +7,10 @@
 #include <sys/ioctl.h>
 #include <poll.h>
 #include <signal.h>
+#include "print.h"
 
 static volatile sig_atomic_t g_stop;
+long load_onetime = 0;
 
 static void On_Signal(int sig)
 {
@@ -89,9 +91,9 @@ int Serial_Config(int fd)
 void Serial_Pollnread(int fd)
 {
     unsigned char buf[512];
-    long total=0;
     while(g_stop == 0)
     {
+        load_onetime = 0;
         // Poll 配置
         struct pollfd pfd=
         {
@@ -123,12 +125,14 @@ void Serial_Pollnread(int fd)
             continue;
         }
 
-        // 
+        // 读取串口数据
         ssize_t n = read(fd, buf, sizeof(buf));
         if(n <= 0)
         {
             continue;
         }
-        total += n;
+        load_onetime += n;
+        char print_buf[512];
+        printf("%s",Stack_Print(buf,print_buf));
     }
 }
