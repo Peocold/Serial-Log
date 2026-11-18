@@ -64,44 +64,20 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
     return;
 }
 
-void Line_Print(int n, char *read_buf, char *final_out, size_t out_size)
+void Line_Print(int n, char *read_buf)
 {
+    int i = 0;
+    for(; n > 16; i++, n -= 16)
+    {
+        char print_buf[128];
+        Line_Format(read_buf + i * 16, 16, print_buf, sizeof(print_buf));
+        printf("%s", print_buf);
+    }
     if(n <= 16)
     {
-        Line_Format(read_buf, n, final_out, out_size);
-    }
-    else
-    {
-        char line_read[16];
-        int line_pos = 0;
-        int line_cnt = 0;
-        for(int i = 0; i < n; i++)
-        {
-            if(line_pos < 16)
-            {
-                line_read[line_pos] = read_buf[i];
-                line_pos++;
-            }
-            if(line_pos == 16 || i == n-1)
-            {
-                char line_out[128];
-                int value = 0;
-                if(line_pos == 16)
-                {
-                    line_cnt++;
-                    value = 16;
-                    line_pos = 0;
-                }
-                else
-                {
-                    value = line_pos;
-                }
-                Line_Format(line_read, value, line_out, sizeof(line_out));
-                snprintf(final_out + (line_cnt - 1) * sizeof(line_out),
-                out_size - (line_cnt - 1) * sizeof(line_out), "%s",line_out);
-                memset(line_read, 0, sizeof(line_read));
-            }
-        }
+        char print_buf[128];
+        Line_Format(read_buf + i * 16, n, print_buf, sizeof(print_buf));
+        printf("%s", print_buf);
     }
     return;
 }

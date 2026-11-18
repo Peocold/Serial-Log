@@ -122,13 +122,13 @@ void Serial_Pollnread(int fd)
         // 读取串口数据, n是读取到的有效字节数
         unsigned char read_buf[512];
         ssize_t n = read(fd, read_buf, sizeof(read_buf));
+
         if(n <= 0)
         {
             continue;
         }
+
         total += n;
-        unsigned char final_print[512];
-        Line_Print(n, read_buf, final_print, sizeof(final_print));
-        printf("%s",final_print);
+        Line_Print(n, read_buf);
     }
 }
