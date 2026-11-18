@@ -1,7 +1,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
-#include "load.h"
+#include <string.h>
 #include "print.h"
 
 void Time_Print(char *buf, size_t size)
@@ -11,12 +11,13 @@ void Time_Print(char *buf, size_t size)
 
     gettimeofday(&tv, NULL);
     localtime_r(&tv.tv_sec,&tm);
-    return snprintf(buf, size, "%04d-%02d-%02d %02d:%02d:%02d.%03d\n",
-                    tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
-                    tm.tm_min, tm.tm_sec,((int)tv.tv_usec / 1000));
+    snprintf(buf, size, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
+             tm.tm_min, tm.tm_sec,((int)tv.tv_usec / 1000));
 }
 
-void Line_Print(const unsigned char *data, int n)
+// data是串口数据包，n是一行中有效字节数，out是格式化输出口
+void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
 {
     if(n <= 0)
     {
@@ -26,11 +27,81 @@ void Line_Print(const unsigned char *data, int n)
     {
         n = 16;
     }
-    char ts[32];
+    char ts[23];
     Time_Print(ts, sizeof(ts));
-    char out[128];
     int pos = 0;
+    // 先把pos对齐在时间戳之后
+    pos += snprintf(out + pos, out_size - pos, "[%s]\n", ts);
 
-    pos += snprintf(out + pos, sizeof(out) - pos, "[%s]", ts);
+    // 把串口读取到的数据以16进制拼接到
+    for(int i = 0; i < 16; i++)
+    {
+        if(i < n)
+        {
+            pos += snprintf(out + pos, out_size - pos, "%02X ", data[i]);
+        }
+        else
+        {
+            pos += snprintf(out + pos, out_size - pos, "   ");
+        }
+    }
+    pos += snprintf(out + pos, out_size - pos, "\n");
 
+    // hex 转 ascii 并拼接
+    for(int i = 0; i < n; i++)
+    {
+        if(data[i] >= 32 && data[i] < 128)
+        {
+            pos += snprintf(out + pos, out_size - pos, "%c", data[i]);
+        }
+        // 不可见打印 .
+        else
+        {
+            pos += snprintf(out + pos, out_size - pos, ".");
+        }
+    }
+    pos += snprintf(out + pos, out_size - pos, "\n");
+    return;
+}
+
+void Line_Print(int n, char *read_buf, char *final_out, size_t out_size)
+{
+    if(n <= 16)
+    {
+        Line_Format(read_buf, n, final_out, out_size);
+    }
+    else
+    {
+        char line_read[16];
+        int line_pos = 0;
+        int line_cnt = 0;
+        for(int i = 0; i < n; i++)
+        {
+            if(line_pos < 16)
+            {
+                line_read[line_pos] = read_buf[i];
+                line_pos++;
+            }
+            if(line_pos == 16 || i == n-1)
+            {
+                char line_out[128];
+                int value = 0;
+                if(line_pos == 16)
+                {
+                    line_cnt++;
+                    value = 16;
+                    line_pos = 0;
+                }
+                else
+                {
+                    value = line_pos;
+                }
+                Line_Format(line_read, value, line_out, sizeof(line_out));
+                snprintf(final_out + (line_cnt - 1) * sizeof(line_out),
+                out_size - (line_cnt - 1) * sizeof(line_out), "%s",line_out);
+                memset(line_read, 0, sizeof(line_read));
+            }
+        }
+    }
+    return;
 }

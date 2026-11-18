@@ -90,7 +90,6 @@ int Serial_Config(int fd)
 void Serial_Pollnread(int fd)
 {
     long total = 0;
-    unsigned char buf[512];
     while(g_stop == 0)
     {
         // Poll 配置
@@ -114,22 +113,22 @@ void Serial_Pollnread(int fd)
                 break;
             }
         }
-        // 超时: 无数据
-        if(ret == 0)
-        {
-            continue;
-        }
-        if((pfd.revents & POLLIN) == 0)
+        // 超时或返回事件不对应
+        if(ret == 0 || (pfd.revents & POLLIN) == 0)
         {
             continue;
         }
 
-        // 读取串口数据
-        ssize_t n = read(fd, buf, sizeof(buf));
+        // 读取串口数据, n是读取到的有效字节数
+        unsigned char read_buf[512];
+        ssize_t n = read(fd, read_buf, sizeof(read_buf));
         if(n <= 0)
         {
             continue;
         }
         total += n;
+        unsigned char final_print[512];
+        Line_Print(n, read_buf, final_print, sizeof(final_print));
+        printf("%s",final_print);
     }
 }
