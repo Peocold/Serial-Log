@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <poll.h>
 #include <signal.h>
+#include "config.h"
 #include "print.h"
 #include "log.h"
 
@@ -68,8 +69,8 @@ int Serial_Config(int fd)
     cfmakeraw(&tio);
 
     // 设置波特率
-    cfsetispeed(&tio, B115200);
-    cfsetospeed(&tio, B115200);
+    cfsetispeed(&tio, BAUD_RATE_SET);
+    cfsetospeed(&tio, BAUD_RATE_SET);
 
     // 关校验 设置停止位位长为一 数据位长先清零 关硬件流控
     tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS);
@@ -90,7 +91,6 @@ int Serial_Config(int fd)
 
 void Serial_Pollnread(int fd)
 {
-    long total = 0;
     while(g_stop == 0)
     {
         // Poll 配置
@@ -129,8 +129,6 @@ void Serial_Pollnread(int fd)
         {
             continue;
         }
-
-        total += n;
         Line_Print(n, read_buf);
         Log_Sync();
     }

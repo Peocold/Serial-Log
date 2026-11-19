@@ -3,6 +3,6 @@
 
 void Time_Print(char *buf, size_t size);
 void Line_Format(const unsigned char *data, int n, char *out, size_t out_size);
-void Line_Print(int n, char *read_buf);
+void Line_Print(int n, const char *read_buf);
 
 #endif

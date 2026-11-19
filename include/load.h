@@ -6,6 +6,4 @@ int Serial_Open(const char* dev);
 int Serial_Config(int fd);
 void Serial_Pollnread(int fd);
 
-extern long load_onetime;
-
 #endif

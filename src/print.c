@@ -63,11 +63,10 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
         }
     }
     pos += snprintf(out + pos, out_size - pos, "\n");
-    return;
 }
 
 // n是一行中的有效字节数
-void Line_Print(int n, char *read_buf)
+void Line_Print(int n, const char *read_buf)
 {
     int i = 0;
     for(; n > 16; i++, n -= 16)
@@ -82,5 +81,4 @@ void Line_Print(int n, char *read_buf)
         Line_Format(read_buf + i * 16, n, print_buf, sizeof(print_buf));
         Log_Output(print_buf, strlen(print_buf));
     }
-    return;
 }
