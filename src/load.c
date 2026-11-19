@@ -8,6 +8,7 @@
 #include <poll.h>
 #include <signal.h>
 #include "print.h"
+#include "log.h"
 
 static volatile sig_atomic_t g_stop;
 
@@ -116,6 +117,7 @@ void Serial_Pollnread(int fd)
         // 超时或返回事件不对应
         if(ret == 0 || (pfd.revents & POLLIN) == 0)
         {
+            Log_Sync();
             continue;
         }
 
@@ -130,5 +132,6 @@ void Serial_Pollnread(int fd)
 
         total += n;
         Line_Print(n, read_buf);
+        Log_Sync();
     }
 }

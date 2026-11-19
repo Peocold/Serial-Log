@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "print.h"
+#include "log.h"
 
+// 打印时间戳
 void Time_Print(char *buf, size_t size)
 {
     struct timeval tv;
@@ -64,6 +66,7 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
     return;
 }
 
+// n是一行中的有效字节数
 void Line_Print(int n, char *read_buf)
 {
     int i = 0;
@@ -71,13 +74,13 @@ void Line_Print(int n, char *read_buf)
     {
         char print_buf[128];
         Line_Format(read_buf + i * 16, 16, print_buf, sizeof(print_buf));
-        printf("%s", print_buf);
+        Log_Output(print_buf, strlen(print_buf));
     }
     if(n <= 16)
     {
         char print_buf[128];
         Line_Format(read_buf + i * 16, n, print_buf, sizeof(print_buf));
-        printf("%s", print_buf);
+        Log_Output(print_buf, strlen(print_buf));
     }
     return;
 }
