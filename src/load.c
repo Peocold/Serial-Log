@@ -19,81 +19,94 @@ static void On_Signal(int sig)
     g_stop = 1;
 }
 
-int Serial_Open(const char* dev)
+/**
+ * @brief 该函数能打开并配置程序独占相应串口
+ * @param serial 串口文件
+ */
+int Serial_Open(const char* serial)
 {
-    // 配置中断、终端信号的处理
+    /* 配置接收与中断信号的处理函数 */
     signal(SIGINT, On_Signal);
     signal(SIGTERM, On_Signal);
 
-    // 可读写 非控制终端 先用非阻塞
-    int fd = open(dev, O_RDWR | O_NOCTTY | O_NONBLOCK);
-    // 打开失败
+    int fd = open(serial, O_RDWR | O_NOCTTY | O_NONBLOCK); //可读写 非控制终端 非阻塞
+    /* 打开串口失败 */
     if(fd < 0)
     {
-        fprintf(stderr,"open %s : %s", dev, strerror(errno));
+        fprintf(stderr,"open %s : %s", serial, strerror(errno));
         return -1;
     }
     
-    // 非终端设备就退还FD
+    /* 误打开非终端设备 */
     if(isatty(fd) == 0)
     {
-        fprintf(stderr, "%s 不是终端设备!\n", dev);
+        fprintf(stderr, "%s 不是终端设备!\n", serial);
         close(fd);
         return -1;
     }
 
-    // 打开了就回阻塞
+    /* 打开成功则恢复阻塞 */
     int fl = fcntl(fd, F_GETFL);
     fcntl(fd, F_SETFL, fl & ~O_NONBLOCK);
 
+    /* 程序独占当前串口 */
     if(ioctl(fd, TIOCEXCL) < 0)
     {
-        fprintf(stderr, "无法独占 %s\n!",dev);
+        fprintf(stderr, "无法独占 %s\n!", serial);
     }
 
     return fd;
 }
 
+/**
+ * @brief 该函数能配置串口模式
+ * @param fd 对应的串口文件
+ * @return 串口模式配置状态，-1为失败，0为成功
+ */
 int Serial_Config(int fd)
 {
     struct termios tio;
-
-    // 读取当前串口配置
+    /* 读取串口配置失败 */
     if(tcgetattr(fd, &tio) < 0)
     {
         perror("tcgetattr");
         return -1;
     }
 
-    // 设置为raw模式: 禁系统干预数据传输
+    /* 配置串口为raw模式：防系统干预数据传输 */
     cfmakeraw(&tio);
 
-    // 设置波特率
+    /* 配置波特率 */
     cfsetispeed(&tio, BAUD_RATE_SET);
     cfsetospeed(&tio, BAUD_RATE_SET);
 
-    // 关校验 设置停止位位长为一 数据位长先清零 关硬件流控
-    tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS);
+    // 关校验位 设置停止位位长为一 数据位长先清零 关硬件流控
+    tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS); 
     // 8位数据位 忽略调制解调器 使能接收器
-    tio.c_cflag |= CS8 | CLOCAL | CREAD;
+    tio.c_cflag |= CS8 | CLOCAL | CREAD; 
 
-    // 读取策略: 读一个字节才返回 不用计时器
+    /* 读到一个字节即返回，不用计时器 */
     tio.c_cc[VMIN] = 1;
     tio.c_cc[VTIME] = 0;
 
-    // 写入新配置
+    /* 更新配置 */
     if(tcsetattr(fd, TCSAFLUSH, &tio) < 0)
     {
         perror("tcsetattr");
         return -1;
     }
+    return 0;
 }
 
+/**
+ * @brief 该函数能启动串口监听与日志记录
+ * @param fd 对应的串口文件
+ */
 void Serial_Pollnread(int fd)
 {
     while(g_stop == 0)
     {
-        // Poll 配置
+        /* 配置监听模式 */
         struct pollfd pfd=
         {
             .fd = fd,
@@ -114,14 +127,15 @@ void Serial_Pollnread(int fd)
                 break;
             }
         }
-        // 超时或返回事件不对应
+
+        /* 监听超时/返回事件不对应 */
         if(ret == 0 || (pfd.revents & POLLIN) == 0)
         {
             Log_Sync();
             continue;
         }
 
-        // 读取串口数据, n是读取到的有效字节数
+        /* 监听成功，读取串口数据 */
         unsigned char read_buf[512];
         ssize_t n = read(fd, read_buf, sizeof(read_buf));
 
@@ -129,7 +143,8 @@ void Serial_Pollnread(int fd)
         {
             continue;
         }
-        Line_Print(n, read_buf);
+
+        Serial_Print(n, (const unsigned char *)read_buf);
         Log_Sync();
     }
 }
