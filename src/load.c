@@ -11,7 +11,7 @@
 #include "print.h"
 #include "log.h"
 
-static volatile sig_atomic_t g_stop;
+static volatile sig_atomic_t g_stop = 0; // 信号处理与串口监听的标识位，1表示退出，0表示继续运行
 
 static void On_Signal(int sig)
 {
@@ -61,7 +61,7 @@ int Serial_Open(const char* serial)
 /**
  * @brief 该函数能配置串口模式
  * @param fd 对应的串口文件
- * @return 串口模式配置状态，-1为失败，0为成功
+ * @return int 串口模式配置状态，-1为失败，0为成功
  */
 int Serial_Config(int fd)
 {
@@ -80,9 +80,9 @@ int Serial_Config(int fd)
     cfsetispeed(&tio, BAUD_RATE_SET);
     cfsetospeed(&tio, BAUD_RATE_SET);
 
-    // 关校验位 设置停止位位长为一 数据位长先清零 关硬件流控
+    /* 关校验位 设置停止位位长为一 数据位长先清零 关硬件流控 */
     tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS); 
-    // 8位数据位 忽略调制解调器 使能接收器
+    /* 8位数据位 忽略调制解调器 使能接收器 */ 
     tio.c_cflag |= CS8 | CLOCAL | CREAD; 
 
     /* 读到一个字节即返回，不用计时器 */
@@ -99,7 +99,7 @@ int Serial_Config(int fd)
 }
 
 /**
- * @brief 该函数能启动串口监听与日志记录
+ * @brief 该函数能执行串口监听与日志记录
  * @param fd 对应的串口文件
  */
 void Serial_Pollnread(int fd)

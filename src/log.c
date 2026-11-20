@@ -19,7 +19,7 @@ static off_t g_log_size = 0;       // 当前日志大小，用于日志更迭
  * @param fd 写入对象的文件描述符
  * @param buf 用于写入的字符串
  * @param len 用于写入的字符串长度
- * @return 写入结果，-1表示失败，0表示成功
+ * @return int 写入结果，-1表示失败，0表示成功
  */
 static int Write_All(int fd, char *buf, int len)
 {
