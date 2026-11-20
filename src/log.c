@@ -9,7 +9,7 @@
 #include "config.h"
 #include "log.h"
 
-static int g_log_fd = -1;          // 日志的文件标识符
+static int g_log_fd = -1;          // 日志的文件描述符
 static int g_log_first = 1;        // 程序/日志文件初次记录标识位，用于判断是否在日志中写入启动标识
 static time_t g_last_sync = -1;    // 上一秒的时间，用于同步判断
 static off_t g_log_size = 0;       // 当前日志大小，用于日志更迭
@@ -49,7 +49,7 @@ static int Write_All(int fd, char *buf, int len)
 }
 
 /**
- * @brief 当日志数达到MAX_LOG_NUM且全部写满时，该函数将删去最旧的日志，回滚其余日志并新建日志
+ * @brief 当日志数达到MAX_LOG_NUM且全部写满时，该函数能删去最旧的日志、回滚其余日志并新建日志
  */
 static void Log_Rotate(void)
 {

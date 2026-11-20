@@ -11,7 +11,7 @@
 #include "print.h"
 #include "log.h"
 
-static volatile sig_atomic_t g_stop = 0; // 信号处理与串口监听的标识位，1表示退出，0表示继续运行
+static volatile sig_atomic_t g_stop = 0; // 信号处理与串口监听的标识位，1表示退出，0表示可继续运行
 
 static void On_Signal(int sig)
 {
@@ -20,12 +20,13 @@ static void On_Signal(int sig)
 }
 
 /**
- * @brief 该函数能打开并配置程序独占相应串口
+ * @brief 该函数能打开并使程序独占对应串口
  * @param serial 串口文件
+ * @return int 串口文件所分配到的文件描述符
  */
 int Serial_Open(const char* serial)
 {
-    /* 配置接收与中断信号的处理函数 */
+    /* 配置中断信号的处理函数 */
     signal(SIGINT, On_Signal);
     signal(SIGTERM, On_Signal);
 
