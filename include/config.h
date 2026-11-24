@@ -14,4 +14,27 @@
 #define BAUD_RATE      115200            // 波特率
 #define BAUD_RATE_SET  B115200           // 波特率
 
+typedef struct Log_Config_struct_t
+{
+    char *serial_port;
+    int baud_rate;
+    unsigned int baud_rate_set;
+
+    char *output_path;
+    int max_log_num;
+    int max_log_size;
+    int max_line_data;
+} Log_Config_t;
+
+typedef struct Baudmap_struct_t
+{
+    const char *name;
+    int value;
+} Baudmap_t;
+
+extern Log_Config_t Log_Config;;
+
+void Config_Init(void);
+void Config_Customize(int agrc, char *agrv[]);
+
 #endif

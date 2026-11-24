@@ -19,6 +19,19 @@ static void On_Signal(int sig)
     g_stop = 1;
 }
 
+void Outagr_Process(int agrc, char *agrv[])
+{
+    switch(agrc)
+    {
+        case 2:
+
+        default:
+            break;
+    }
+    return;
+}
+
+
 /**
  * @brief 该函数能打开并使程序独占对应串口
  * @param serial 串口文件
@@ -78,8 +91,8 @@ int Serial_Config(int fd)
     cfmakeraw(&tio);
 
     /* 配置波特率 */
-    cfsetispeed(&tio, BAUD_RATE_SET);
-    cfsetospeed(&tio, BAUD_RATE_SET);
+    cfsetispeed(&tio, Log_Config.baud_rate_set);
+    cfsetospeed(&tio, Log_Config.baud_rate_set);
 
     /* 关校验位 设置停止位位长为一 数据位长先清零 关硬件流控 */
     tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS); 
@@ -145,7 +158,7 @@ void Serial_Pollnread(int fd)
             continue;
         }
 
-        Serial_Print(n, (const unsigned char *)read_buf);
+        Serial_Output(n, (const unsigned char *)read_buf);
         Log_Sync();
     }
 }

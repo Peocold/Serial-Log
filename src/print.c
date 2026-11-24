@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <termios.h>
 #include "print.h"
 #include "log.h"
 #include "config.h"
@@ -41,13 +42,13 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
         return;
     }
     /* 限制一次一行的数据写入 */
-    if(n > MAX_LINE_DATA)
+    if(n > Log_Config.max_line_data)
     {
-        n = MAX_LINE_DATA;
+        n = Log_Config.max_line_data;
     }
 
     /* 获取时间戳 */
-    char ts[23];
+    char ts[24];
     Time_Print(ts, sizeof(ts));
     int pos = 0;
 
@@ -55,7 +56,7 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
     pos += snprintf(out + pos, out_size - pos, "[%s]\n", ts);
 
     /* 2. 拼接一行16进制的源数据 */
-    for(int i = 0; i < MAX_LINE_DATA; i++)
+    for(int i = 0; i < Log_Config.max_line_data; i++)
     {
         if(i < n)
         {
@@ -91,7 +92,7 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
  * @param n 读取到的字节数
  * @param read_buf 读取到的数据的字符串
  */
-void Serial_Print(int n, const unsigned char *read_buf)
+void Serial_Output(int n, const unsigned char *read_buf)
 {
     int i = 0;
     for(; n > 16; i++, n -= 16)

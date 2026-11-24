@@ -6,14 +6,15 @@
 #include "log.h"
 #include "config.h"
 
-int main(void)
+int main(int agrc, char *agrv[])
 {
-    int fd = Serial_Open(SERIAL_PATH);
-    Log_Open();
+    Config_Init();
+    int fd = Serial_Open((const char*)Log_Config.serial_port);
     if(fd < 0 || Serial_Config(fd) < 0)
     {
         return 1;
     }
+    Log_Open();
     Serial_Pollnread(fd);
     Log_Close();
     close(fd);
