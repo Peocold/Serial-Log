@@ -64,11 +64,11 @@ static void Log_Rotate(void)
 
     /* 删掉最旧的日志 */
     char old_file[128];
-    snprintf(old_file, sizeof(old_file), "%s/serial.log.%d", (const char*)Log_Config.output_path, Log_Config.max_log_num - 1);
+    snprintf(old_file, sizeof(old_file), "%s/serial.log.%d", (const char*)Log_Config.output_path, MAX_LOG_NUM - 1);
     unlink(old_file);
     
     /* 回滚重命名 */
-    for(int i = Log_Config.max_log_num - 2; i >= 0; i--)
+    for(int i = MAX_LOG_NUM - 2; i >= 0; i--)
     {
         char last_name[128];
         char new_name[128];
@@ -195,7 +195,7 @@ void Log_Output(char *wr_buf, int len)
         else
         {
             g_log_size += len;
-            if(g_log_size >= Log_Config.max_log_size)
+            if(g_log_size >= MAX_LOG_SIZE)
             {
                 Log_Rotate();
             }

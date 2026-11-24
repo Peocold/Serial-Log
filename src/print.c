@@ -42,9 +42,9 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
         return;
     }
     /* 限制一次一行的数据写入 */
-    if(n > Log_Config.max_line_data)
+    if(n > MAX_LINE_DATA)
     {
-        n = Log_Config.max_line_data;
+        n = MAX_LINE_DATA;
     }
 
     /* 获取时间戳 */
@@ -56,7 +56,7 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
     pos += snprintf(out + pos, out_size - pos, "[%s]\n", ts);
 
     /* 2. 拼接一行16进制的源数据 */
-    for(int i = 0; i < Log_Config.max_line_data; i++)
+    for(int i = 0; i < MAX_LINE_DATA; i++)
     {
         if(i < n)
         {
@@ -95,16 +95,16 @@ void Line_Format(const unsigned char *data, int n, char *out, size_t out_size)
 void Serial_Output(int n, const unsigned char *read_buf)
 {
     int i = 0;
-    for(; n > 16; i++, n -= 16)
+    for(; n > MAX_LINE_DATA; i++, n -= MAX_LINE_DATA)
     {
         char print_buf[128];
-        Line_Format(read_buf + i * 16, 16, print_buf, sizeof(print_buf));
+        Line_Format(read_buf + i * MAX_LINE_DATA, MAX_LINE_DATA, print_buf, sizeof(print_buf));
         Log_Output(print_buf, strlen(print_buf));
     }
-    if(n <= 16)
+    if(n <= MAX_LINE_DATA)
     {
         char print_buf[128];
-        Line_Format(read_buf + i * 16, n, print_buf, sizeof(print_buf));
+        Line_Format(read_buf + i * MAX_LINE_DATA, n, print_buf, sizeof(print_buf));
         Log_Output(print_buf, strlen(print_buf));
     }
 }

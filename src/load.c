@@ -19,19 +19,6 @@ static void On_Signal(int sig)
     g_stop = 1;
 }
 
-void Outagr_Process(int agrc, char *agrv[])
-{
-    switch(agrc)
-    {
-        case 2:
-
-        default:
-            break;
-    }
-    return;
-}
-
-
 /**
  * @brief 该函数能打开并使程序独占对应串口
  * @param serial 串口文件

@@ -39,11 +39,7 @@ void Config_Init(void)
     Log_Config.baud_rate = BAUD_RATE;
     Log_Config.baud_rate_set = B115200;
     Log_Config.serial_port = SERIAL_PATH;
-    
     Log_Config.output_path = LOG_PATH;
-    Log_Config.max_log_size = MAX_LOG_SIZE;
-    Log_Config.max_log_num = MAX_LOG_NUM;
-    Log_Config.max_line_data = MAX_LINE_DATA;
 }
 
 /**

@@ -16,14 +16,10 @@
 
 typedef struct Log_Config_struct_t
 {
-    char *serial_port;
-    int baud_rate;
-    unsigned int baud_rate_set;
-
     char *output_path;
-    int max_log_num;
-    int max_log_size;
-    int max_line_data;
+    char *serial_port;
+    unsigned int baud_rate_set;
+    int baud_rate;
 } Log_Config_t;
 
 typedef struct Baudmap_struct_t
