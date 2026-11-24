@@ -9,7 +9,7 @@
 int main(int agrc, char *agrv[])
 {
     Config_Init();
-    int fd = Serial_Open((const char*)Log_Config.serial_port);
+    int fd = Serial_Open((const char*)Log_Config.port);
     if(fd < 0 || Serial_Config(fd) < 0)
     {
         return 1;

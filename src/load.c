@@ -78,8 +78,8 @@ int Serial_Config(int fd)
     cfmakeraw(&tio);
 
     /* 配置波特率 */
-    cfsetispeed(&tio, Log_Config.baud_rate_set);
-    cfsetospeed(&tio, Log_Config.baud_rate_set);
+    cfsetispeed(&tio, Log_Config.baud_set);
+    cfsetospeed(&tio, Log_Config.baud_set);
 
     /* 关校验位 设置停止位位长为一 数据位长先清零 关硬件流控 */
     tio.c_cflag &= ~(PARENB | CSTOPB | CSIZE | CRTSCTS); 

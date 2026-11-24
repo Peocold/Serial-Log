@@ -64,7 +64,7 @@ static void Log_Rotate(void)
 
     /* 删掉最旧的日志 */
     char old_file[128];
-    snprintf(old_file, sizeof(old_file), "%s/serial.log.%d", (const char*)Log_Config.output_path, MAX_LOG_NUM - 1);
+    snprintf(old_file, sizeof(old_file), "%s/serial.log.%d", (const char*)Log_Config.output, MAX_LOG_NUM - 1);
     unlink(old_file);
     
     /* 回滚重命名 */
@@ -74,13 +74,13 @@ static void Log_Rotate(void)
         char new_name[128];
         if(i == 0)
         {
-            snprintf(last_name, sizeof(last_name), "%s/serial.log", (const char*)Log_Config.output_path);
+            snprintf(last_name, sizeof(last_name), "%s/serial.log", (const char*)Log_Config.output);
         }
         else
         {
-            snprintf(last_name, sizeof(last_name), "%s/serial.log.%d", (const char*)Log_Config.output_path, i);
+            snprintf(last_name, sizeof(last_name), "%s/serial.log.%d", (const char*)Log_Config.output, i);
         }
-        snprintf(new_name, sizeof(new_name), "%s/serial.log.%d", (const char*)Log_Config.output_path, i + 1);
+        snprintf(new_name, sizeof(new_name), "%s/serial.log.%d", (const char*)Log_Config.output, i + 1);
         if(rename(last_name, new_name) < 0 && errno != ENOENT)
         {
             fprintf(stderr, "%s -> %s : %s", last_name, new_name, strerror(errno));
@@ -89,14 +89,14 @@ static void Log_Rotate(void)
 
     /* 新建日志 */
     char new_name[128];
-    snprintf(new_name, sizeof(new_name), "%s/serial.log", (const char*)Log_Config.output_path);
+    snprintf(new_name, sizeof(new_name), "%s/serial.log", (const char*)Log_Config.output);
     g_log_fd = open(new_name, O_WRONLY | O_CREAT | O_APPEND, 0644);
 
     /* 新建失败 */
     if(g_log_fd < 0)
     {
         char error_message[128];
-        snprintf(error_message, sizeof(error_message), "%s %s", (const char*)Log_Config.output_path, "打开日志失败");
+        snprintf(error_message, sizeof(error_message), "%s %s", (const char*)Log_Config.output, "打开日志失败");
         perror(error_message);
         return;
     }
@@ -110,22 +110,22 @@ static void Log_Rotate(void)
 void Log_Open(void)
 {
     /* 建立日志目录 */
-    if(mkdir((const char*)Log_Config.output_path, 0755) < 0 && errno != EEXIST)
+    if(mkdir((const char*)Log_Config.output, 0755) < 0 && errno != EEXIST)
     {
-        perror((const char*)Log_Config.output_path);
+        perror((const char*)Log_Config.output);
         return;
     }
 
     /* 新建/打开日志 */
     char path[128];
-    snprintf(path, sizeof(path), "%s/serial.log", (const char*)Log_Config.output_path);
+    snprintf(path, sizeof(path), "%s/serial.log", (const char*)Log_Config.output);
     g_log_fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644); // 只写 文件创建 向上插入
 
     /* 新建/打开失败 */
     if(g_log_fd < 0)
     {
         char error_message[128];
-        snprintf(error_message, sizeof(error_message), "%s %s", (const char*)Log_Config.output_path, "新建/打开日志失败");
+        snprintf(error_message, sizeof(error_message), "%s %s", (const char*)Log_Config.output, "新建/打开日志失败");
         perror(error_message);
         return;
     }
@@ -175,7 +175,7 @@ void Log_Output(char *wr_buf, int len)
         if(g_log_first == 1)
         {
             char header[128];                                                                     
-            n = snprintf(header, sizeof(header), "===== START %s baud=%d =====\n", Log_Config.serial_port, Log_Config.baud_rate);  
+            n = snprintf(header, sizeof(header), "===== START %s baud=%d =====\n", Log_Config.port, Log_Config.baud);  
             if(Write_All(g_log_fd, header, n) == 0)
             {
                 g_log_size += n;

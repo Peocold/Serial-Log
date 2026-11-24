@@ -16,10 +16,10 @@
 
 typedef struct Log_Config_struct_t
 {
-    char *output_path;
-    char *serial_port;
-    unsigned int baud_rate_set;
-    int baud_rate;
+    char *output;
+    char *port;
+    unsigned int baud_set;
+    int baud;
 } Log_Config_t;
 
 typedef struct Baudmap_struct_t
@@ -31,6 +31,6 @@ typedef struct Baudmap_struct_t
 extern Log_Config_t Log_Config;;
 
 void Config_Init(void);
-void Config_Customize(int agrc, char *agrv[]);
+int Config_Customize(int agrc, char *agrv[]);
 
 #endif

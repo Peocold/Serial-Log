@@ -36,22 +36,23 @@ struct option Config_Option[] =
 
 void Config_Init(void)
 {
-    Log_Config.baud_rate = BAUD_RATE;
-    Log_Config.baud_rate_set = B115200;
-    Log_Config.serial_port = SERIAL_PATH;
-    Log_Config.output_path = LOG_PATH;
+    Log_Config.baud = BAUD_RATE;
+    Log_Config.baud_set = B115200;
+    Log_Config.port = SERIAL_PATH;
+    Log_Config.output = LOG_PATH;
 }
 
 /**
  * @brief 用于自定义串口、日志输出
  * @param agrc 输入的参数数量
  * @param agrv 输入的参数数组
+ * @return int 配置结果，0表示成功，-1表示失败
  */
-void Config_Customize(int agrc, char *agrv[])
+int Config_Customize(int agrc, char *agrv[])
 {
     if(agrc < 2)
     {
-        return;
+        return -1;
     }
     int opt = getopt_long(agrc, agrv, "b:s:d:h", Config_Option, NULL);
     while(opt != -1)
@@ -69,21 +70,25 @@ void Config_Customize(int agrc, char *agrv[])
                 {
                     if(baud_set == Baudmap[i].name)
                     {
-                        Log_Config.baud_rate = atoi(optarg);
-                        Log_Config.baud_rate_set = Baudmap[i].value;
+                        Log_Config.baud = atoi(optarg);
+                        Log_Config.baud_set = Baudmap[i].value;
                         break;
+                    }
+                    else if(i == 14)
+                    {
+                        return -1;
                     }
                 }
                 break;
 
             /* 自定义串口 */
             case 's':
-                Log_Config.serial_port = optarg;
+                Log_Config.port = optarg;
                 break;
             
             /* 自定义日志输出目录 */
             case 'd':
-                Log_Config.output_path = optarg;
+                Log_Config.output = optarg;
                 break;
             
             /* 显示使用帮助 */
@@ -96,5 +101,5 @@ void Config_Customize(int agrc, char *agrv[])
                 break;
         }
     }
-    return;
+    return 0;
 }
