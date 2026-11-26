@@ -3,7 +3,6 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <string.h>
 
 Log_Config_t Log_Config;
 
@@ -47,7 +46,7 @@ void Config_Init(void)
     Log_Config.baud = 115200;
     Log_Config.baud_set = B115200;
     Log_Config.port = "/dev/ttyS1";
-    Log_Config.output = "/userdata/logs";
+    Log_Config.output = "/tmp/logs";
 }
 
 /**

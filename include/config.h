@@ -14,9 +14,6 @@ typedef struct Log_Config_struct_t
     int baud;                 // 波特率
 } Log_Config_t;
 
-/**
- * @brief 用于被遍历以对应修改Log_Config结构体中的baud_set
- */
 typedef struct Baudmap_struct_t
 {
     int value;
