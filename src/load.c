@@ -22,7 +22,7 @@ static void On_Signal(int sig)
 /**
  * @brief 该函数能打开并使程序独占对应串口
  * @param serial 串口文件
- * @return int 串口文件所分配到的文件描述符
+ * @return int 串口文件所分配到的文件描述符，分配失败返回值为-1
  */
 int Serial_Open(const char* serial)
 {

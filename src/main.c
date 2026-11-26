@@ -12,11 +12,12 @@ int main(int agrc, char *agrv[])
     if(Log_Config.is_start != -1)
     {
         int fd = Serial_Open((const char*)Log_Config.port);
-        if(fd < 0 || Serial_Config(fd) < 0 || Log_Open() < 0)
+        if(fd != -1 && Serial_Config(fd) == 0 && Log_Open() == 0)
         {
-            return -1;
+            printf("===== 当前波特率:%d 串口:%s =====\n", Log_Config.baud, Log_Config.port);
+            fflush(stdout);
+            Serial_Pollnread(fd);
         }
-        Serial_Pollnread(fd);
         Log_Close();
         close(fd);
     }
