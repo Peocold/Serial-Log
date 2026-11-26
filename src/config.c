@@ -3,28 +3,32 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <string.h>
 
 Log_Config_t Log_Config;
 
 Baudmap_t Baudmap[15] = 
 {
-    {"B57600",  0010001},
-    {"B115200", 0010002},
-    {"B230400", 0010003},
-    {"B460800", 0010004},
-    {"B500000", 0010005},
-    {"B576000", 0010006},
-    {"B921600", 0010007},
-    {"B1000000",0010010},
-    {"B1152000",0010011},
-    {"B1500000",0010012},
-    {"B2000000",0010013},
-    {"B2500000",0010014},
-    {"B3000000",0010015},
-    {"B3500000",0010016},
-    {"B4000000",0010017},
+    {57600,  0010001},
+    {115200, 0010002},
+    {230400, 0010003},
+    {460800, 0010004},
+    {500000, 0010005},
+    {576000, 0010006},
+    {921600, 0010007},
+    {1000000,0010010},
+    {1152000,0010011},
+    {1500000,0010012},
+    {2000000,0010013},
+    {2500000,0010014},
+    {3000000,0010015},
+    {3500000,0010016},
+    {4000000,0010017},
 };
 
+/**
+ * @brief 注册程序参数指令，可修改串口、波特率与日志保存目录
+ */
 struct option Config_Option[] =
 {
     {"baud", required_argument, NULL, 'b'},
@@ -34,12 +38,16 @@ struct option Config_Option[] =
     {0, 0, 0, 0},
 };
 
+/**
+ * @brief 串口日志模块默认配置函数
+ */
 void Config_Init(void)
 {
-    Log_Config.baud = BAUD_RATE;
+    Log_Config.is_start = 0;
+    Log_Config.baud = 115200;
     Log_Config.baud_set = B115200;
-    Log_Config.port = SERIAL_PATH;
-    Log_Config.output = LOG_PATH;
+    Log_Config.port = "/dev/ttyS1";
+    Log_Config.output = "/userdata/logs";
 }
 
 /**
@@ -48,34 +56,35 @@ void Config_Init(void)
  * @param agrv 输入的参数数组
  * @return int 配置结果，0表示成功，-1表示失败
  */
-int Config_Customize(int agrc, char *agrv[])
+int Config_Customize(int argc, char *argv[])
 {
-    if(agrc < 2)
+    /* 未使用参数指令退出用默认配置 */
+    if(argc < 2)
     {
         return -1;
     }
-    int opt = getopt_long(agrc, agrv, "b:s:d:h", Config_Option, NULL);
-    while(opt != -1)
+
+    int opt;
+    while((opt = getopt_long(argc, argv, "b:s:d:h", Config_Option, NULL)) != -1)
     {
         switch (opt)
         {
             /* 自定义波特率 */
             case 'b':
-                /* 将B与参数拼接 */
-                char baud_set[8]={'B'};
-                snprintf(baud_set + 1, sizeof(baud_set), "%d", atoi(optarg));
-
                 /* 遍历波特率表，有对应即设置 */
                 for(int i = 0; i < 15; i++)
                 {
-                    if(baud_set == Baudmap[i].name)
+                    if(atoi(optarg) == Baudmap[i].value)
                     {
-                        Log_Config.baud = atoi(optarg);
-                        Log_Config.baud_set = Baudmap[i].value;
+                        Log_Config.baud = Baudmap[i].value;
+                        Log_Config.baud_set = Baudmap[i].bin_value;
                         break;
                     }
+                    /* 无对应即失败 */
                     else if(i == 14)
                     {
+                        Log_Config.is_start = -1;
+                        printf("波特率配置失败!\n");
                         return -1;
                     }
                 }
@@ -93,11 +102,14 @@ int Config_Customize(int agrc, char *agrv[])
             
             /* 显示使用帮助 */
             case 'h':
-                printf("-b config baud rate\n\
-                        -s select serial file\n\
-                        -d change the output path of serial log");
+                Log_Config.is_start = -1;
+                printf("-b   配置波特率\n");
+                printf("-s   选择串口\n");
+                printf("-d   更改日志输出目录\n");
                 break;
-            default:
+
+            case '?': default:
+                Log_Config.is_start = -1;
                 break;
         }
     }

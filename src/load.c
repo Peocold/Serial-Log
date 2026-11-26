@@ -34,7 +34,7 @@ int Serial_Open(const char* serial)
     /* 打开串口失败 */
     if(fd < 0)
     {
-        fprintf(stderr,"open %s : %s", serial, strerror(errno));
+        fprintf(stderr,"open %s : %s\n", serial, strerror(errno));
         return -1;
     }
     

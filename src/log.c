@@ -106,14 +106,15 @@ static void Log_Rotate(void)
 
 /**
  * @brief 该函数能把新建日志(及存放目录)并为日志文件分配文件描述符
+ * @return int 新建/打开日志状态，0表示成功，-1表示失败
  */
-void Log_Open(void)
+int Log_Open(void)
 {
     /* 建立日志目录 */
     if(mkdir((const char*)Log_Config.output, 0755) < 0 && errno != EEXIST)
     {
         perror((const char*)Log_Config.output);
-        return;
+        return -1;
     }
 
     /* 新建/打开日志 */
@@ -127,10 +128,11 @@ void Log_Open(void)
         char error_message[128];
         snprintf(error_message, sizeof(error_message), "%s %s", (const char*)Log_Config.output, "新建/打开日志失败");
         perror(error_message);
-        return;
+        return -1;
     }
     /* 读取当前日志大小 */
     g_log_size = lseek(g_log_fd, 0, SEEK_END); //
+    return 0;
 }
 
 /**
