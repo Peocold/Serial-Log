@@ -63,8 +63,8 @@ int Config_Customize(int argc, char *argv[])
         return -1;
     }
 
-    int opt;
-    while((opt = getopt_long(argc, argv, "b:s:d:h", Config_Option, NULL)) != -1)
+    int opt = getopt_long(argc, argv, "b:s:d:h", Config_Option, NULL);
+    while(opt != -1)
     {
         switch (opt)
         {
