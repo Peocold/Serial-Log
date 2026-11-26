@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <signal.h>
 #include "load.h"
 #include "print.h"
 #include "log.h"
